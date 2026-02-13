@@ -590,23 +590,31 @@ export function initVentas() {
     const fecha = fila.querySelector(".aut-fecha");
     const btnEliminar = fila.querySelector(".btn-eliminar-fila");
 
+    function getISOWeek(date) {
+      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dayNum = d.getUTCDay() || 7; // lunes = 1, domingo = 7
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+
+
     function calcular() {
       const c = parseFloat(cant.value) || 0;
       const p = parseFloat(precio.value) || 0;
       const s = c * p;
+
       subtotal.value = s.toFixed(2);
       retencion.value = (s * 0.01).toFixed(2);
       pago.value = (s - s * 0.01).toFixed(2);
 
       const hoy = new Date();
-      const start = new Date(hoy.getFullYear(), 0, 1);
-      const diff = hoy - start + (start.getDay() + 1) * 86400000;
-      const week = Math.ceil(diff / (7 * 86400000));
-      sem.value = week;
+      sem.value = getISOWeek(hoy); // ✅ semana ISO real
       fecha.value = hoy.toISOString().split("T")[0];
 
       actualizarTotales();
     }
+
 
     cant.addEventListener("input", calcular);
     precio.addEventListener("input", calcular);
@@ -1296,13 +1304,10 @@ export function initVentas() {
       const token = localStorage.getItem("token");
 
       for (const detalleId of detallesAprobar) {
-        const res = await fetch(
-          `${API_VENTAS}/detalle/${detalleId}/aprobar`,
-          {
-            method: "PUT",
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        );
+        const res = await fetch(`${API_VENTAS}/detalle/${detalleId}/aprobar`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
         if (!res.ok) {
           throw new Error("Error aprobando detalle " + detalleId);
@@ -1311,6 +1316,9 @@ export function initVentas() {
 
       // recargar vista desde BD (fuente única)
       cargarFacturacion();
+
+      // ✅ ACTUALIZAR RESUMEN SIN RECARGAR PÁGINA
+      await renderResumen();
 
     } catch (err) {
       console.error(err);
@@ -1334,6 +1342,7 @@ export function initVentas() {
   }
 
   // ================= RENDER =================
+  // ================= RENDER =================
   async function renderResumen() {
     const contenedor = document.querySelector(".resumen-contenedor");
     if (!contenedor) return;
@@ -1344,6 +1353,12 @@ export function initVentas() {
 
     data.forEach((sem, index) => {
       let totalSemana = 0;
+
+      // 🔹 DESPACHO AUTOMÁTICO: suma de qq facturados
+      const despachoAuto = (sem.facturacion || []).reduce(
+        (acc, f) => acc + Number(f.qq || 0),
+        0
+      );
 
       const thead = `
       <tr>
@@ -1376,11 +1391,11 @@ export function initVentas() {
 
       const facturacionHTML = sem.facturacion.length
         ? sem.facturacion.map(f => `
-        <div class="factura-item">
-          <span>${f.cliente}</span>
-          <small>${f.factura_numero} · ${f.qq} qq</small>
-        </div>
-      `).join("")
+          <div class="factura-item">
+            <span>${f.cliente}</span>
+            <small>${f.factura_numero} · ${f.qq} qq</small>
+          </div>
+        `).join("")
         : `<small style="color:#9ca3af;font-size:11px;">Sin despachos</small>`;
 
       contenedor.innerHTML += `
@@ -1404,9 +1419,15 @@ export function initVentas() {
           <div class="control-seco">
 
             <div class="control-resumen">
+
               <div class="control-linea">
                 <span>Saldo anterior (qq)</span>
-                <input type="number" class="input-saldo-anterior" value="${index === 0 ? 0 : ""}">
+                <input
+                  type="number"
+                  class="input-saldo-anterior"
+                  ${index === 0 ? "" : "readonly"}
+                  value="${index === 0 ? 0 : ""}"
+                >
               </div>
 
               <div class="control-linea">
@@ -1421,13 +1442,19 @@ export function initVentas() {
 
               <div class="control-linea">
                 <span>Despacho</span>
-                <input type="number" class="input-despacho" value="0">
+                <input
+                  type="number"
+                  class="input-despacho"
+                  value="${despachoAuto}"
+                  readonly
+                >
               </div>
 
               <div class="control-linea total">
                 <span>Saldo final</span>
                 <strong class="valor-saldo-final">0.00</strong>
               </div>
+
             </div>
 
             <div class="control-facturacion">
@@ -1443,6 +1470,7 @@ export function initVentas() {
 
     recalcularTodasLasSemanas();
   }
+
 
   // ================= KARDEX LOGICA =================
   function recalcularSemana(semanaEl) {
