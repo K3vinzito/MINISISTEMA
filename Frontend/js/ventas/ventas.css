@@ -14,13 +14,17 @@
 /* ====== TITULO DEL MÓDULO VENTAS ====== */
 .ventas-titulo {
   display: flex;
-  align-items: center;   /* centra verticalmente el ícono con el texto */
-  gap: 8px;              /* espacio entre el ícono y el texto */
-  margin-bottom: 12px;   /* igual que tu margin actual del h2 */
+  align-items: center;
+  /* centra verticalmente el ícono con el texto */
+  gap: 8px;
+  /* espacio entre el ícono y el texto */
+  margin-bottom: 12px;
+  /* igual que tu margin actual del h2 */
 }
 
 .ventas-titulo-icono {
-  width: 42px;           /* ajusta tamaño según necesidad */
+  width: 42px;
+  /* ajusta tamaño según necesidad */
   height: 32px;
 }
 
@@ -31,8 +35,10 @@
 
   /* ==== Estilo de letra redondeada ==== */
   font-family: 'Baloo 2', 'Poppins', sans-serif;
-  font-weight: 700;      /* ligeramente más grueso */
-  letter-spacing: 0.1px; /* opcional: suaviza la lectura */
+  font-weight: 700;
+  /* ligeramente más grueso */
+  letter-spacing: 0.1px;
+  /* opcional: suaviza la lectura */
 }
 
 
@@ -43,10 +49,12 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  height: 100vh;          /* ocupa el 80% del viewport */
+  height: 100vh;
+  /* ocupa el 80% del viewport */
   max-height: 90vh;
   box-sizing: border-box;
-  overflow: hidden;      /* evita que se salga del contenedor */
+  overflow: hidden;
+  /* evita que se salga del contenedor */
 }
 
 /* ===================== TABS ===================== */
@@ -102,7 +110,7 @@
   gap: 20px;
   width: 100%;
   align-items: flex-start;
-  
+
 }
 
 .directorio-form {
@@ -114,7 +122,8 @@
   width: 280px;
   position: sticky;
   top: 20px;
-  height: calc(80vh - 40px); /* ajustado al contenedor */
+  height: calc(80vh - 40px);
+  /* ajustado al contenedor */
   box-sizing: border-box;
   flex-shrink: 0;
 }
@@ -154,7 +163,8 @@
 /* CONTENEDOR TABLA CON SCROLL */
 .directorio-tabla-contenedor {
   flex: 1;
-  height: calc(80vh - 40px); /* ocupa el resto del contenedor visible */
+  height: calc(80vh - 40px);
+  /* ocupa el resto del contenedor visible */
   display: flex;
   flex-direction: column;
   border: 1px solid #ffffff;
@@ -278,8 +288,10 @@
 /* BOTONES AUTORIZACION */
 .autorizacion-botones {
   display: flex;
-  justify-content: flex-end; /* 👈 movido a la derecha */
-  gap: 10px; /* espacio entre botones */
+  justify-content: flex-end;
+  /* 👈 movido a la derecha */
+  gap: 10px;
+  /* espacio entre botones */
 }
 
 .autorizacion-botones button {
@@ -313,7 +325,7 @@
   box-sizing: border-box;
   background: #e0f2f7;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .autorizacion-totales div {
@@ -337,8 +349,10 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.046);
 
   /* 👇 altura fija para que el contenedor permanezca fijo */
-  height: calc(40vh - 30px); /* ajustable según diseño */
-  min-height: 200px; /* evita que colapse demasiado */
+  height: calc(40vh - 30px);
+  /* ajustable según diseño */
+  min-height: 200px;
+  /* evita que colapse demasiado */
 }
 
 .facturacion-tabla .tabla-headers {
@@ -352,12 +366,14 @@
   color: #e0f2f7;
   border-radius: 8px 8px 0 0;
   align-items: center;
-  flex-shrink: 0; /* mantiene el header fijo */
+  flex-shrink: 0;
+  /* mantiene el header fijo */
 }
 
 .facturacion-tabla .tabla-body {
   flex: 1;
-  overflow-y: auto; /* scroll interno en la tabla */
+  overflow-y: auto;
+  /* scroll interno en la tabla */
 }
 
 .fact-hist-row {
@@ -412,7 +428,7 @@
   align-items: center;
   justify-content: center;
   gap: 14px;
-  
+
 }
 
 /* ================= CONTENEDOR GENERAL ================= */
@@ -432,8 +448,9 @@
 
   gap: 14px;
 
-  
+
 }
+
 /*
 
 */
@@ -444,7 +461,7 @@
   background: #ffffff;
   border-radius: 14px;
   padding: 14px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
 .resumen-semana h4 {
@@ -476,7 +493,7 @@
   border-radius: 12px;
   overflow: hidden;
   table-layout: fixed;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
 }
 
 /* ENCABEZADOS */
@@ -532,7 +549,8 @@
   border-radius: 12px;
   padding: 12px;
   border: 1px solid #e5e7eb;
-  min-width: 420px; /* 👈 hace el panel más largo */
+  min-width: 420px;
+  /* 👈 hace el panel más largo */
 }
 
 /* ====== BLOQUE IZQUIERDO (SALDOS) ====== */
@@ -631,8 +649,10 @@
 /* BOTONES AUTORIZACION (APROBAR / IMPRIMIR) */
 .autorizacion-botones {
   display: flex;
-  justify-content: flex-end; /* 👈 alineado a la derecha */
-  gap: 10px; /* espacio entre botones */
+  justify-content: flex-end;
+  /* 👈 alineado a la derecha */
+  gap: 10px;
+  /* espacio entre botones */
 }
 
 .autorizacion-botones button {
@@ -661,12 +681,10 @@
 }
 
 .resumen-contenedor::-webkit-scrollbar-thumb {
-  background: rgba(186,2,125,0.5);
+  background: rgba(186, 2, 125, 0.5);
   border-radius: 4px;
 }
 
 .resumen-contenedor::-webkit-scrollbar-track {
   background: transparent;
 }
-
-

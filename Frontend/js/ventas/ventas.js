@@ -1251,8 +1251,6 @@ export function initVentas() {
     cargarAprobadas();
   }
 
-
-
   // ========================= GUARDAR FACTURACIÓN =========================
   function guardarFacturacion() {
     const historial = [];
@@ -1471,7 +1469,6 @@ export function initVentas() {
     recalcularTodasLasSemanas();
   }
 
-
   // ================= KARDEX LOGICA =================
   function recalcularSemana(semanaEl) {
     const saldoAnterior = parseFloat(semanaEl.querySelector('.input-saldo-anterior')?.value || 0);
@@ -1506,8 +1503,6 @@ export function initVentas() {
 
   // ================= EVENTOS =================
 
-
-
   // 👉 Autorización (fila inicial)
   agregarFilaAutorizacion(true);
 
@@ -1528,6 +1523,5 @@ export function initVentas() {
         recalcularTodasLasSemanas();
       }
     });
-
 
 }

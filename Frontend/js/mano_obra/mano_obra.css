@@ -63,15 +63,18 @@
 }
 
 .switch-toggle-compact input {
-  display: none; /* ocultar checkbox */
+  display: none;
+  /* ocultar checkbox */
 }
 
 /* Slider con etiquetas siempre visibles */
 .slider-compact {
   position: relative;
-  width: 120px;       /* ancho total del switch */
-  height: 26px;       
-  background-color: #d2d2d2; /* fondo gris */
+  width: 120px;
+  /* ancho total del switch */
+  height: 26px;
+  background-color: #d2d2d2;
+  /* fondo gris */
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -84,35 +87,43 @@
 /* Etiquetas sobre el botón, centradas vertical y horizontalmente */
 .slider-compact .label-left,
 .slider-compact .label-right {
-  position: relative; /* sobre el botón */
-  z-index: 3;         /* siempre arriba */
+  position: relative;
+  /* sobre el botón */
+  z-index: 3;
+  /* siempre arriba */
   font-size: 10px;
   color: #ffffff;
   text-align: center;
-  width: 50%;         /* cada etiqueta ocupa la mitad del switch */
+  width: 50%;
+  /* cada etiqueta ocupa la mitad del switch */
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none; /* no bloquear el click */
+  pointer-events: none;
+  /* no bloquear el click */
 }
 
 /* Botón que se mueve detrás de las etiquetas */
 .slider-compact::before {
   content: "";
   position: absolute;
-  width: 50px;        /* ancho del botón */
-  height: 19px;       
-  background-color: #0c2f68; /* azul */
+  width: 50px;
+  /* ancho del botón */
+  height: 19px;
+  background-color: #0c2f68;
+  /* azul */
   border-radius: 4px;
   top: 3px;
   left: 1px;
   transition: 0.3s;
-  z-index: 2;         /* detrás de las etiquetas */
+  z-index: 2;
+  /* detrás de las etiquetas */
 }
 
 /* Mover el botón al estado “Completo” */
-.switch-toggle-compact input:checked + .slider-compact::before {
-  left: 67px; /* ancho total - ancho botón - padding */
+.switch-toggle-compact input:checked+.slider-compact::before {
+  left: 67px;
+  /* ancho total - ancho botón - padding */
 }
 
 /* Cursor pointer */
@@ -124,7 +135,8 @@
 
 #tabla-derecha tbody tr,
 #tabla-derecha tfoot tr {
-  transition: all 0.4s ease-in-out; /* suaviza cambios de altura y opacidad */
+  transition: all 0.4s ease-in-out;
+  /* suaviza cambios de altura y opacidad */
 }
 
 #tabla-derecha td,
@@ -145,17 +157,22 @@
 }
 
 .slider-compact::before {
-  width: 50px;   /* más pequeño para Ligero */
-  height: 18px;  /* opcional: un poco más bajo */
+  width: 50px;
+  /* más pequeño para Ligero */
+  height: 18px;
+  /* opcional: un poco más bajo */
   top: 4px;
   left: 5px;
   transition: all 0.3s;
 }
 
-.switch-toggle-compact input:checked + .slider-compact::before {
-  width: 55px;  /* más grande para Completo */
-  height: 18px; /* opcional */
-  left: 62px;   /* mover hacia la derecha (ancho total - ancho botón - padding) */
+.switch-toggle-compact input:checked+.slider-compact::before {
+  width: 55px;
+  /* más grande para Completo */
+  height: 18px;
+  /* opcional */
+  left: 62px;
+  /* mover hacia la derecha (ancho total - ancho botón - padding) */
 }
 
 
@@ -180,7 +197,7 @@
 
 /* PANEL BASE */
 .modulo-mano-obra .panel {
-  background: rgba(255,255,255,0.9);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 20px;
   padding: 18px;
   display: flex;
@@ -236,53 +253,66 @@
   z-index: 3;
 }
 
-.modulo-mano-obra .panel thead { top: 0; }
-.modulo-mano-obra .panel tfoot { bottom: 0; font-size: 13px; font-weight: 400; }
+.modulo-mano-obra .panel thead {
+  top: 0;
+}
+
+.modulo-mano-obra .panel tfoot {
+  bottom: 0;
+  font-size: 13px;
+  font-weight: 400;
+}
 
 
 
 /* Resaltar la categoría seleccionada en la tabla izquierda */
 tr.clickable-selected td {
-  background-color: #fff9b9; /* azul indicador */
-  color: #040404;               /* letras blancas */
+  background-color: #fff9b9;
+  /* azul indicador */
+  color: #040404;
+  /* letras blancas */
   font-weight: bold;
 }
 
 /* ===== AJUSTE REAL DE TAMAÑO Y PESO — ZONA GRIS ===== */
 .modulo-mano-obra #tabla-derecha td.col-principal {
-  font-size: 12px;     /* <-- AQUÍ cambia el tamaño */
-  font-weight: 500;   /* más delgada */
+  font-size: 12px;
+  /* <-- AQUÍ cambia el tamaño */
+  font-weight: 500;
+  /* más delgada */
   color: #3e3e3e;
 }
 
 
 /* P/U en gris */
 .modulo-mano-obra #tabla-derecha td.pu-monetario {
-  color: #9f779a;     /* gris elegante */
+  color: #9f779a;
+  /* gris elegante */
   font-family: Consolas, "Courier New", monospace;
 }
 
 
 
-
-
 /* Columnas principales (#, Labor, Unidad, # Pers.) */
 #tabla-derecha td.col-principal {
-  background-color: #f9f9f9; /* gris claro */
-  color: #3e3e3e; 
+  background-color: #f9f9f9;
+  /* gris claro */
+  color: #3e3e3e;
 }
 
 /* Columnas secundarias (Avance, P/U, Valor) */
 #tabla-derecha td.col-secundaria {
-  background-color: #ffffff; /* blanco o el color por defecto */
-  
+  background-color: #ffffff;
+  /* blanco o el color por defecto */
+
 }
 
 
 
 /* ================= TITULOS DE PANELES ================= */
 .modulo-mano-obra .panel-header h3 {
-  font-size: 18px;      /* ⬅️ CAMBIA ESTE VALOR */
+  font-size: 18px;
+  /* ⬅️ CAMBIA ESTE VALOR */
   font-weight: 500;
   color: #565053;
 }
@@ -296,7 +326,7 @@ tr.clickable-selected td {
   text-align: center;
   border-bottom: 1px solid #e5e7eb;
   height: 20px;
-   padding: 4px 6px;
+  padding: 4px 6px;
 }
 
 /* SCROLL */
@@ -349,7 +379,7 @@ tr.clickable-selected td {
 .modulo-mano-obra .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -390,11 +420,13 @@ tr.clickable-selected td {
   align-items: center;
   justify-content: center;
 }
+
 #modulo-mano-obra {
   padding: 0px 0px 0px;
   height: 100%;
   box-sizing: border-box;
 }
+
 /* =========================================
    FIX DEFINITIVO — GRAFICA MANO DE OBRA
 ========================================= */
@@ -429,5 +461,3 @@ tr.clickable-selected td {
   color: #1aa35c;
   font-weight: 700;
 }
-
-

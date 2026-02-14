@@ -7,6 +7,29 @@ import path from "path";
 
 const router = express.Router();
 
+// ================= FUNCIONES INTERNAS =================
+
+function convertirAKilos(cantidad, unidad) {
+  const c = Number(cantidad) || 0;
+
+  switch (unidad.toLowerCase()) {
+    case "qq":
+    case "quintal":
+      return c * 100;
+
+    case "kg":
+    case "kilo":
+      return c;
+
+    case "lb":
+    case "libra":
+      return c * 0.453592;
+
+    default:
+      return 0;
+  }
+}
+
 
 /* ======================================================
    CREAR ORDEN DE VENTA (SIN FACTURA: SE ASIGNA AL APROBAR)
@@ -397,9 +420,9 @@ router.put("/detalle/:id/aprobar", authRequired, async (req, res) => {
   try {
     await client.query("BEGIN");
 
-    // 1️⃣ Obtener orden_id del detalle
+    // 1️⃣ Obtener detalle
     const detRes = await client.query(
-      "SELECT orden_id FROM orden_venta_detalle WHERE id = $1",
+      "SELECT orden_id, cantidad, unidad FROM orden_venta_detalle WHERE id = $1",
       [detalleId]
     );
 
@@ -408,49 +431,67 @@ router.put("/detalle/:id/aprobar", authRequired, async (req, res) => {
       return res.status(404).json({ error: "Detalle no encontrado" });
     }
 
-    const ordenId = detRes.rows[0].orden_id;
+    const { orden_id, cantidad, unidad } = detRes.rows[0];
 
-    // 2️⃣ Aprobar el detalle
+    const kilosVenta = convertirAKilos(cantidad, unidad);
+
+    // 2️⃣ Obtener stock actual
+    const stockRes = await client.query(
+      "SELECT stock_kilos FROM stock_cacao WHERE id = 1 FOR UPDATE"
+    );
+
+    const stockActual = Number(stockRes.rows[0].stock_kilos);
+
+    if (kilosVenta > stockActual) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        error: `Stock insuficiente. Disponible: ${stockActual.toFixed(2)} kg`
+      });
+    }
+
+    // 3️⃣ Descontar stock
+    await client.query(
+      "UPDATE stock_cacao SET stock_kilos = stock_kilos - $1 WHERE id = 1",
+      [kilosVenta]
+    );
+
+    // 4️⃣ Aprobar detalle
     await client.query(
       "UPDATE orden_venta_detalle SET aprobado = true WHERE id = $1",
       [detalleId]
     );
 
-    // 3️⃣ Verificar si quedan detalles pendientes
+    // 5️⃣ Verificar si todos están aprobados
     const pendRes = await client.query(
       `SELECT COUNT(*) AS pendientes
        FROM orden_venta_detalle
        WHERE orden_id = $1 AND aprobado = false`,
-      [ordenId]
+      [orden_id]
     );
 
-    const pendientes = Number(pendRes.rows[0].pendientes);
+    if (Number(pendRes.rows[0].pendientes) === 0) {
 
-    // 4️⃣ Si NO quedan pendientes → aprobar orden y generar factura
-    if (pendientes === 0) {
-
-      // Generar número de factura solo una vez
       const facRes = await client.query(
         "SELECT factura_numero FROM orden_venta WHERE id = $1",
-        [ordenId]
+        [orden_id]
       );
 
       let facturaNumero = facRes.rows[0].factura_numero;
 
       if (!facturaNumero) {
-        facturaNumero = `FAC-${String(ordenId).padStart(6, "0")}`;
+        facturaNumero = `FAC-${String(orden_id).padStart(6, "0")}`;
 
         await client.query(
           `UPDATE orden_venta
            SET estado = 'APROBADA',
                factura_numero = $1
            WHERE id = $2`,
-          [facturaNumero, ordenId]
+          [facturaNumero, orden_id]
         );
       } else {
         await client.query(
           "UPDATE orden_venta SET estado = 'APROBADA' WHERE id = $1",
-          [ordenId]
+          [orden_id]
         );
       }
     }
@@ -464,6 +505,23 @@ router.put("/detalle/:id/aprobar", authRequired, async (req, res) => {
     res.status(500).json({ error: "Error aprobando detalle" });
   } finally {
     client.release();
+  }
+});
+
+/* ======================================================
+   Endpoint para ver stock actual
+====================================================== */
+router.get("/stock", authRequired, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      "SELECT stock_kilos FROM stock_cacao WHERE id = 1"
+    );
+
+    res.json({ stock_kilos: Number(rows[0].stock_kilos) });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error obteniendo stock" });
   }
 });
 

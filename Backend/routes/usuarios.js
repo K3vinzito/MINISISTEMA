@@ -83,7 +83,7 @@ router.put(
       return res.status(400).json({ error: "Datos incompletos" });
     }
 
-    try {
+    try { 
       await pool.query(
         `UPDATE usuarios
          SET usuario = $1, rol = $2
