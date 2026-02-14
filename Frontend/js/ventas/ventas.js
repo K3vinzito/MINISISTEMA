@@ -7,6 +7,8 @@ export function initVentas() {
   ====================================================== */
   const tabsVentas = document.querySelectorAll(".ventas-tab");
   const vistasVentas = document.querySelectorAll(".ventas-vista");
+  let stockActualKilos = 0;
+
 
   tabsVentas.forEach(tab => {
     tab.addEventListener("click", () => {
@@ -91,6 +93,25 @@ export function initVentas() {
     }
   }
 
+  async function cargarStockActual() {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_VENTAS}/stock`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!res.ok) throw new Error("Error obteniendo stock");
+
+      const data = await res.json();
+      stockActualKilos = Number(data.stock_kilos) || 0;
+
+    } catch (err) {
+      console.error(err);
+      alert("No se pudo obtener stock actual");
+    }
+  }
 
   guardarClienteBtn.addEventListener("click", async () => {
     const payload = {
@@ -214,30 +235,6 @@ export function initVentas() {
   //let editIndex = null;
   // const tablaClientes = document.getElementById("tablaClientes");
   //const guardarClienteBtn = document.getElementById("guardarCliente");
-
-
-  function editarCliente(i) {
-    const c = clientes[i];
-    document.getElementById("razonSocial").value = c.razon_social;
-    document.getElementById("ruc").value = c.ruc;
-    document.getElementById("direccion").value = c.direccion;
-    document.getElementById("personal").value = c.personal;
-    document.getElementById("cargo").value = c.cargo;
-    document.getElementById("telefono").value = c.telefono;
-    document.getElementById("email").value = c.email;
-    editIndex = i;
-  }
-
-  function eliminarCliente(i) {
-    if (editIndex === i) editIndex = null;
-    clientes.splice(i, 1);
-    renderClientes();
-    actualizarSelectRazon();
-    actualizarSelectOrigen();
-    actualizarSelectUnidad();
-    guardarDirectorio();
-  }
-
 
 
   document.querySelectorAll("#directorio .directorio-form input").forEach(input => {
@@ -574,6 +571,13 @@ export function initVentas() {
     <option value="ONAHOUSE">ONAHOUSE</option>
   `;
 
+    const infoStock = document.createElement("small");
+    infoStock.className = "stock-info";
+    infoStock.style.color = "#2563eb";
+    infoStock.style.fontWeight = "600";
+    fila.appendChild(infoStock);
+
+
     const contenedor = document.querySelector(".autorizacion-registro");
     const filaTotal = contenedor.querySelector(".autorizacion-totales");
     if (filaTotal) contenedor.insertBefore(fila, filaTotal);
@@ -613,6 +617,41 @@ export function initVentas() {
       fecha.value = hoy.toISOString().split("T")[0];
 
       actualizarTotales();
+
+
+      let stockEnUnidad = 0;
+
+      const unidadSeleccionada = fila.querySelector(".aut-unidad").value;
+
+      if (unidadSeleccionada === "QUINTAL") {
+        stockEnUnidad = stockActualKilos / 100;
+      }
+
+      if (unidadSeleccionada === "KILO") {
+        stockEnUnidad = stockActualKilos;
+      }
+
+      if (unidadSeleccionada === "LIBRA") {
+        stockEnUnidad = stockActualKilos / 0.453592;
+      }
+
+      infoStock.textContent = `Stock disponible: ${stockEnUnidad.toFixed(2)} ${unidadSeleccionada}`;
+
+      let cantidadEnKilos = c;
+
+      if (unidadSeleccionada === "QUINTAL") cantidadEnKilos = c * 100;
+      if (unidadSeleccionada === "LIBRA") cantidadEnKilos = c * 0.453592;
+
+      if (cantidadEnKilos > stockActualKilos) {
+        alert(`Stock insuficiente. Disponible: ${stockEnUnidad.toFixed(2)} ${unidadSeleccionada}`);
+        cant.value = "";
+        subtotal.value = "";
+        retencion.value = "";
+        pago.value = "";
+        return;
+      }
+
+
     }
 
 
@@ -1179,26 +1218,31 @@ export function initVentas() {
       ? URL.createObjectURL(archivoObj.file)
       : archivoObj.url;
 
+    const ext = archivoObj.name.split(".").pop().toLowerCase();
 
-    const file = archivoObj.file;
-
-
-    if (file.type === "application/pdf") {
+    // PDF
+    if (ext === "pdf") {
       const iframe = document.createElement("iframe");
       iframe.src = url;
       iframe.style.width = "100%";
       iframe.style.height = "100%";
       previewContainer.appendChild(iframe);
-    } else if (file.type.startsWith("image/")) {
+      return;
+    }
+
+    // Imagen
+    if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) {
       const img = document.createElement("img");
       img.src = url;
       img.style.maxWidth = "100%";
       img.style.maxHeight = "100%";
       img.style.objectFit = "contain";
       previewContainer.appendChild(img);
-    } else {
-      previewContainer.textContent = "Vista previa no disponible para este tipo de archivo.";
+      return;
     }
+
+    previewContainer.textContent =
+      "Vista previa no disponible para este tipo de archivo.";
   }
 
 
@@ -1505,6 +1549,9 @@ export function initVentas() {
 
   // 👉 Autorización (fila inicial)
   agregarFilaAutorizacion(true);
+
+  cargarStockActual();
+
 
   // 👉 Facturación (pendientes + aprobadas desde BD)
   cargarFacturacion();

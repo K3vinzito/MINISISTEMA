@@ -147,6 +147,29 @@ router.post("/orden", authRequired, async (req, res) => {
   }
 });
 
+/* ======================================================
+   OBTENER STOCK ACTUAL
+====================================================== */
+router.get("/stock", authRequired, async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      "SELECT stock_kilos FROM stock_cacao WHERE id = 1"
+    );
+
+    if (!rows.length) {
+      return res.status(400).json({ error: "Stock no configurado" });
+    }
+
+    res.json({
+      stock_kilos: Number(rows[0].stock_kilos)
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error obteniendo stock" });
+  }
+});
+
 
 /* ======================================================
    FACTURACIÓN — DETALLE DE ÓRDENES PENDIENTES
