@@ -51,6 +51,7 @@ router.post("/orden", authRequired, async (req, res) => {
     let total_retencion = 0;
     let total_pago = 0;
 
+    // 🔹 Calcular totales normales
     detalles.forEach(d => {
       total_cantidad += Number(d.cantidad) || 0;
       total_subtotal += Number(d.subtotal) || 0;
@@ -58,7 +59,39 @@ router.post("/orden", authRequired, async (req, res) => {
       total_pago += Number(d.pago) || 0;
     });
 
-    // 1) Crear cabecera (factura_numero se queda NULL aquí)
+    // 🔹 🔴 VALIDACIÓN DE STOCK EN KILOS
+    let totalKilos = 0;
+
+    detalles.forEach(d => {
+      let cantidad = Number(d.cantidad) || 0;
+
+      if (d.unidad === "QUINTAL") cantidad *= 100;
+      if (d.unidad === "LIBRA") cantidad *= 0.453592;
+      if (d.unidad === "KILO") cantidad *= 1;
+
+      totalKilos += cantidad;
+    });
+
+    // 🔹 Obtener stock actual (bloqueado para evitar ventas simultáneas)
+    const stockRes = await client.query(
+      "SELECT stock_kilos FROM stock_cacao WHERE id = 1 FOR UPDATE"
+    );
+
+    if (!stockRes.rowCount) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({ error: "Stock no configurado" });
+    }
+
+    const stockActual = Number(stockRes.rows[0].stock_kilos);
+
+    if (totalKilos > stockActual) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        error: `Stock insuficiente. Disponible: ${stockActual.toFixed(2)} kg`
+      });
+    }
+
+    // 🔹 Crear cabecera
     const ordenRes = await client.query(
       `INSERT INTO orden_venta
        (cliente_id, razon_social, semana, fecha,
@@ -79,7 +112,7 @@ router.post("/orden", authRequired, async (req, res) => {
 
     const ordenId = ordenRes.rows[0].id;
 
-    // 2) Insertar detalles (todos arrancan como aprobado = false)
+    // 🔹 Insertar detalles
     for (const d of detalles) {
       await client.query(
         `INSERT INTO orden_venta_detalle
@@ -100,7 +133,6 @@ router.post("/orden", authRequired, async (req, res) => {
 
     await client.query("COMMIT");
 
-    // 3) Respuesta
     res.json({
       ok: true,
       orden_id: ordenId
@@ -114,6 +146,7 @@ router.post("/orden", authRequired, async (req, res) => {
     client.release();
   }
 });
+
 
 /* ======================================================
    FACTURACIÓN — DETALLE DE ÓRDENES PENDIENTES
